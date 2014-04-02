@@ -32,11 +32,14 @@ class MicropostsController < ApplicationController
     @micropost = Micropost.new(micropost_params)
 
     respond_to do |format|
-      if @micropost.save
+      if ((User.exists?(@micropost.user_id)) && (@micropost.save))
         format.html { redirect_to @micropost, notice: 'Micropost was successfully created.' }
         format.json { render action: 'show', status: :created, location: @micropost }
       else
-        format.html { render action: 'new' }
+        format.html { 
+          flash.now[:notice] = 'Invalid User Id.'
+          render action: 'new'
+        }
         format.json { render json: @micropost.errors, status: :unprocessable_entity }
       end
     end
@@ -46,11 +49,14 @@ class MicropostsController < ApplicationController
   # PATCH/PUT /microposts/1.json
   def update
     respond_to do |format|
-      if @micropost.update(micropost_params)
+      if ((User.exists?(params[:micropost][:user_id])) && (@micropost.update(micropost_params)))
         format.html { redirect_to @micropost, notice: 'Micropost was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { 
+          flash.now[:notice] = 'Invalid User Id.'
+          render action: 'edit'
+         }
         format.json { render json: @micropost.errors, status: :unprocessable_entity }
       end
     end
